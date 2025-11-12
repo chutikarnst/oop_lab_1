@@ -26,20 +26,34 @@ class DataLoader:
         return data
     
 class Table:
-    def aggregate(aggregation_key, aggregation_function, dict_list):
-        temps = []
-        for item in dict_list:
+    def __init__(self, condition, dict_list):
+        self.condition = condition
+        self.dict_list = dict_list
+        self.table = self.filter()  
+    def filter(self, function=None):
+        val = []
+        for item in self.dict_list:
+            if function == None:
+                if self.condition in item:
+                    val.append(item)
+            else:
+                if function(item):
+                    val.append(item)
+        new_table = Table.__new__(Table)
+        new_table.condition = self.condition
+        new_table.dict_list = val
+        new_table.table = val
+        return new_table
+    def aggregate(self, aggregation_function, aggregation_key):
+        data = []
+        for item in self.dict_list:
+            x = item[aggregation_key]
             try:
-                temps.append(float(item[aggregation_key]))
+                x = float(x)
             except ValueError:
-                temps.append(item[aggregation_key])
-        return aggregation_function(temps)
-    def filter(condition, dict_list):
-        temps = []
-        for item in dict_list:
-            if condition(item):
-                temps.append(item)
-        return temps
+                pass
+            data.append(x)
+        return aggregation_function(data)
 
 loader = DataLoader()
 cities = loader.load_csv('Cities.csv')
